@@ -10,7 +10,7 @@ services:
       POSTGRES_DB: booking
 
     ports:
-      - "5432:5432"
+      - "5485:5432"
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -110,70 +110,9 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
 
-
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: kafka-ui
-    restart: always
-
-    depends_on:
-      - kafka
-
-    ports:
-      - "8080:8080"
-
-    environment:
-      KAFKA_CLUSTERS_0_NAME: booking-cluster
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
-      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
-
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
-    container_name: elasticsearch
-    restart: always
-
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-
-    ports:
-      - "9200:9200"
-
-    volumes:
-      - es_data:/usr/share/elasticsearch/data
-
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -f http://localhost:9200/_cluster/health || exit 1"
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.12.0
-    container_name: kibana
-    restart: always
-
-    depends_on:
-      - elasticsearch
-
-    ports:
-      - "5601:5601"
-
-    environment:
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-
-
 volumes:
   postgres_data:
   redis_data:
   zookeeper_data:
   zookeeper_logs:
   kafka_data:
-  es_data:
